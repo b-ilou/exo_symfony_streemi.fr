@@ -37,9 +37,33 @@ class User
     #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'publisher')]
     private Collection $comments;
 
+    /**
+     * @var Collection<int, Comment>
+     */
+    #[ORM\OneToMany(targetEntity: Comment::class, mappedBy: 'user')]
+    private Collection $commentsUser;
+
+    /**
+     * @var Collection<int, Playlist>
+     */
+    #[ORM\OneToMany(targetEntity: Playlist::class, mappedBy: 'user')]
+    private Collection $playlists;
+
+    /**
+     * @var Collection<int, PlaylistSubscription>
+     */
+    #[ORM\ManyToMany(targetEntity: PlaylistSubscription::class, mappedBy: 'user')]
+    private Collection $playlistSubscriptions;
+
+    #[ORM\ManyToOne(inversedBy: 'user')]
+    private ?SubscriptionHistory $subscriptionHistory = null;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
+        $this->commentsUser = new ArrayCollection();
+        $this->playlists = new ArrayCollection();
+        $this->playlistSubscriptions = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -133,6 +157,105 @@ class User
                 $comment->setPublisher(null);
             }
         }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Comment>
+     */
+    public function getCommentsUser(): Collection
+    {
+        return $this->commentsUser;
+    }
+
+    public function addCommentsUser(Comment $commentsUser): static
+    {
+        if (!$this->commentsUser->contains($commentsUser)) {
+            $this->commentsUser->add($commentsUser);
+            $commentsUser->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeCommentsUser(Comment $commentsUser): static
+    {
+        if ($this->commentsUser->removeElement($commentsUser)) {
+            // set the owning side to null (unless already changed)
+            if ($commentsUser->getUser() === $this) {
+                $commentsUser->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Playlist>
+     */
+    public function getPlaylists(): Collection
+    {
+        return $this->playlists;
+    }
+
+    public function addPlaylist(Playlist $playlist): static
+    {
+        if (!$this->playlists->contains($playlist)) {
+            $this->playlists->add($playlist);
+            $playlist->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlaylist(Playlist $playlist): static
+    {
+        if ($this->playlists->removeElement($playlist)) {
+            // set the owning side to null (unless already changed)
+            if ($playlist->getUser() === $this) {
+                $playlist->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, PlaylistSubscription>
+     */
+    public function getPlaylistSubscriptions(): Collection
+    {
+        return $this->playlistSubscriptions;
+    }
+
+    public function addPlaylistSubscription(PlaylistSubscription $playlistSubscription): static
+    {
+        if (!$this->playlistSubscriptions->contains($playlistSubscription)) {
+            $this->playlistSubscriptions->add($playlistSubscription);
+            $playlistSubscription->addUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removePlaylistSubscription(PlaylistSubscription $playlistSubscription): static
+    {
+        if ($this->playlistSubscriptions->removeElement($playlistSubscription)) {
+            $playlistSubscription->removeUser($this);
+        }
+
+        return $this;
+    }
+
+    public function getSubscriptionHistory(): ?SubscriptionHistory
+    {
+        return $this->subscriptionHistory;
+    }
+
+    public function setSubscriptionHistory(?SubscriptionHistory $subscriptionHistory): static
+    {
+        $this->subscriptionHistory = $subscriptionHistory;
 
         return $this;
     }

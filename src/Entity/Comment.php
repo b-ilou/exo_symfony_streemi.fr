@@ -32,6 +32,13 @@ class Comment
     #[ORM\JoinColumn(nullable: false)]
     private ?user $publisher = null;
 
+    #[ORM\ManyToOne(inversedBy: 'comments')]
+    private ?Media $media = null;
+
+    #[ORM\ManyToOne(inversedBy: 'commentsUser')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->childComments = new ArrayCollection();
@@ -104,6 +111,30 @@ class Comment
     public function setPublisher(?user $publisher): static
     {
         $this->publisher = $publisher;
+
+        return $this;
+    }
+
+    public function getMedia(): ?Media
+    {
+        return $this->media;
+    }
+
+    public function setMedia(?Media $media): static
+    {
+        $this->media = $media;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

@@ -30,6 +30,10 @@ class Subscription
     #[ORM\OneToMany(targetEntity: User::class, mappedBy: 'currentSubscription')]
     private Collection $users;
 
+    #[ORM\ManyToOne(inversedBy: 'subscription')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?SubscriptionHistory $subscriptionHistory = null;
+
     public function __construct()
     {
         $this->users = new ArrayCollection();
@@ -102,6 +106,18 @@ class Subscription
                 $user->setCurrentSubscription(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getSubscriptionHistory(): ?SubscriptionHistory
+    {
+        return $this->subscriptionHistory;
+    }
+
+    public function setSubscriptionHistory(?SubscriptionHistory $subscriptionHistory): static
+    {
+        $this->subscriptionHistory = $subscriptionHistory;
 
         return $this;
     }
